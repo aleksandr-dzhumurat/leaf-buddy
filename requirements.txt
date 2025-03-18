@@ -1,0 +1,13 @@
+requests
+numpy==1.24
+bs4
+pandas
+tqdm
+fake_useragent==2.0.3
+langchain==0.3.20
+langchain-community
+transformers==4.49
+torch==2.2.2
+langchain-huggingface
+faiss-cpu==1.7.4
+openai

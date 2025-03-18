@@ -1,0 +1,23 @@
+# Core dependencies
+faiss-cpu==1.7.4
+numpy==1.24
+pandas
+python-dotenv==1.0.1
+PyYAML==6.0.1
+requests
+transformers
+torch==2.2.2
+tqdm==4.66.4
+
+# Serving dependencies
+fastapi
+uvicorn
+
+fake_useragent==2.0.3
+bs4
+tqdm
+
+
+langchain==0.3.20
+langchain-community
+langchain-huggingface
