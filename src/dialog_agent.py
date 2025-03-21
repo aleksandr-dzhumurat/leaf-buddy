@@ -14,7 +14,7 @@ from langchain.prompts import (
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate
 
 from utils import extract_json, read_html
-from vector_storage import get_vector_db, search
+# from vector_storage import get_vector_db, search
 
 
 base_url = 'https://www.leafly.com'
@@ -26,7 +26,7 @@ if os.getenv('OPENAI_API_KEY') is None:
     print(load_dotenv(f'{current_dir}/.env'))
 root_data_dir = os.environ['ROOT_DATA_DIR']
 catalog_df = pd.read_csv(os.path.join(root_data_dir, 'leafly_catalog.csv'))
-vector_db = get_vector_db((catalog_df))
+# vector_db = get_vector_db((catalog_df))
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 shop_assistant_prompt = read_html(current_dir, 'shop_assistant_prompt.txt')
@@ -47,7 +47,7 @@ chat = ConversationChain(
 )
 
 def request_api(query, relief=[], positive_effects=[]):
-    api_url = 'http://0.0.0.0:8000'
+    api_url = 'http://api_container:8000' #, 'http://0.0.0.0:8000')
     headers = {"Content-Type": "application/json"}
     payload = {
         "relief": relief,

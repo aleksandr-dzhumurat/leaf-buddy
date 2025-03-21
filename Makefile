@@ -19,21 +19,43 @@ run-leafly-scraper:
 	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/leafly_scraper.py
 
 run-dialog:
-	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/dialog_agent.py
+	ROOT_DATA_DIR=${CURRENT_DIR}/data \
+	CONFIG_DIR=${CURRENT_DIR} \
+	python src/dialog_agent.py
 
 run-jupyter:
 	PYTHONPATH=${CURRENT_DIR}/src \
 	ROOT_DATA_DIR=${CURRENT_DIR}/data jupyter notebook jupyter_notebooks --ip 0.0.0.0 --port 8887 \
 	--NotebookApp.token='' --NotebookApp.password='' --allow-root --no-browser
 
+run-tg-local:
+	PYTHONPATH=${CURRENT_DIR}/src \
+	CONFIG_DIR=${CURRENT_DIR} \
+	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/telagram_app.py
+
 build-api:
 	docker build -f services/api/Dockerfile -t adzhumurat/api:latest .
 
 run-api:
-	docker run --rm \
+	docker run -d \
 		--env-file ${CURRENT_DIR}/.env  \
 	    -v "${CURRENT_DIR}/src:/srv/src" \
 		-p 8000:8000 \
+		-e RUN_ENV=docker \
 	    -v "${CURRENT_DIR}/data:/srv/data" \
+		--network backtier \
 	    --name api_container \
 		adzhumurat/api:latest
+
+run-tg: run-api
+	docker run --rm \
+		--env-file ${CURRENT_DIR}/.env  \
+	    -v "${CURRENT_DIR}/src:/srv/src" \
+		-e RUN_ENV=docker \
+	    -v "${CURRENT_DIR}/data:/srv/data" \
+		--network backtier \
+	    --name tg_container \
+		adzhumurat/api:latest \
+		"python" src/telagram_app.py
+
+run: build-network run-tg

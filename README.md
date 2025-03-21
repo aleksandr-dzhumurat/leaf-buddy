@@ -36,3 +36,7 @@ Run dialog
 make run-dialog
 ```
 
+# Deploy code
+```ssh
+rsync -avz /Users/username/PycharmProjects/leaf-buddy root@168.119.168.170:/root
+```

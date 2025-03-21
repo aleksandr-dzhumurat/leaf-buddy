@@ -6,8 +6,9 @@ tqdm
 fake_useragent==2.0.3
 langchain==0.3.20
 langchain-community
+langchain-huggingface
 transformers==4.49
 torch==2.2.2
-langchain-huggingface
 faiss-cpu==1.7.4
 openai
+python-telegram-bot==22.0

@@ -11,7 +11,7 @@ from src.vector_storage import get_vector_db, search
 
 root_data_dir = os.environ['ROOT_DATA_DIR']
 catalog_df = pd.read_csv(os.path.join(root_data_dir, 'leafly_catalog.csv'))
-vector_db = get_vector_db((catalog_df), debug=True)
+vector_db = get_vector_db((catalog_df), debug=False)
 app = FastAPI()
 
 class SearchRequest(BaseModel):
