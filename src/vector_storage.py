@@ -16,8 +16,8 @@ root_data_dir = os.environ['ROOT_DATA_DIR']
 config_dir = os.getenv('CONFIG_DIR')
 if config_dir is not None:
     print(load_dotenv(os.path.join(config_dir, '.env')))
-html_data_dir = 'models'
-cache_folder = os.path.join(root_data_dir, html_data_dir)
+models_data_dir = 'models'
+cache_folder = os.path.join(root_data_dir, models_data_dir)
 if not os.path.exists(cache_folder):
     os.mkdir(cache_folder)
 

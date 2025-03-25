@@ -23,9 +23,9 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
 from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, MessageReactionHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
-from dialog_agent import dialog_router, request_api, memory
+from dialog_agent import dialog_router, request_api
 
 
 TOKEN = os.environ['TG_BOT_TOKEN']
@@ -47,7 +47,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     response = [
-        "Send me a phrase  with errors in english (or event in russian). I will make you phrase to sound smothier!"
+        "🌿 Hey there! I’m your AI budtender 🤖. Ask me anything about cannabis products — I’ve got you covered! 💬"
     ]
     for i in response:
         await update.message.reply_text(i)
@@ -59,8 +59,8 @@ async def bot_dialog(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     bot_response = dialog_router(update.message.text, user)
     if bot_response['final_answer']:
         user_query = bot_response['answer']['user_query']
+        print('Requesting search service')
         search_results = request_api(user_query)
-        memory.clear()
         for i in search_results[:4]:
             await update.message.reply_html(
                 f'<a href="{i[1]}">{i[0]}</a>',

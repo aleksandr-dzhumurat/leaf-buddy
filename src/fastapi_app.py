@@ -8,9 +8,11 @@ import pandas as pd
 
 #from src.utils import embedder, search_engine, get_candidates, rerank_candidates
 from src.vector_storage import get_vector_db, search
+from src.utils import get_data_version, get_fecent_file
 
 root_data_dir = os.environ['ROOT_DATA_DIR']
-catalog_df = pd.read_csv(os.path.join(root_data_dir, 'leafly_catalog.csv'))
+data_version = get_data_version(get_fecent_file(root_data_dir, 'leafly_html_pages'))
+catalog_df = pd.read_csv(os.path.join(root_data_dir, f'leafly_catalog_{data_version}.csv'))
 vector_db = get_vector_db((catalog_df), debug=False)
 app = FastAPI()
 
@@ -26,9 +28,6 @@ class ScoreResult(BaseModel):
     relief: List[str]
     positive_effects: List[str]
     query: str
-
-class EmbeddingRequest(BaseModel):
-    text: str
 
 class SearchResult(BaseModel):
     title: str
@@ -74,11 +73,6 @@ async def search_items(request: SearchRequest):
 async def score(data: ScoreRequest):
     # Process the scoring data here: for now, let's just return the received data
     return {"received_items": data.items}
-
-@app.post("/embed", response_model=EmbedResult)
-def embed_text(data: EmbeddingRequest):
-    # embeddings = embedder.encode(data.text)
-    return {'embed':json.dumps(embeddings.tolist()) }
 
 if __name__ == "__main__":
     import uvicorn

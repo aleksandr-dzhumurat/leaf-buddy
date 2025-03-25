@@ -13,9 +13,12 @@ from langchain.prompts import (
 )
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate
 
-from utils import extract_json, read_html
+from src.utils import extract_json, read_html, get_fecent_file, get_data_version
 # from vector_storage import get_vector_db, search
 
+
+
+dialogs = {}
 
 base_url = 'https://www.leafly.com'
 current_file_path = os.path.abspath(__file__)
@@ -25,7 +28,8 @@ if os.getenv('OPENAI_API_KEY') is None:
     print(f'{os.path.dirname(current_dir)}/../.env')
     print(load_dotenv(f'{current_dir}/.env'))
 root_data_dir = os.environ['ROOT_DATA_DIR']
-catalog_df = pd.read_csv(os.path.join(root_data_dir, 'leafly_catalog.csv'))
+data_version = os.getenv('DATA_VERSION', get_data_version(get_fecent_file(root_data_dir, 'leafly_catalog')))
+catalog_df = pd.read_csv(os.path.join(root_data_dir, f'leafly_catalog_{data_version}.csv'))
 # vector_db = get_vector_db((catalog_df))
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -38,13 +42,15 @@ prompt = ChatPromptTemplate.from_messages([
     MessagesPlaceholder(variable_name="history"),
     HumanMessagePromptTemplate.from_template("{input}")
 ])
-memory = ConversationBufferMemory(return_messages=True)
-chat = ConversationChain(
-    llm=llm,
-    memory=memory,
-    verbose=True,
-    prompt=prompt,
-)
+def create_dialog():
+    memory = ConversationBufferMemory(return_messages=True)
+    chat = ConversationChain(
+        llm=llm,
+        memory=memory,
+        verbose=True,
+        prompt=prompt,
+    )
+    return memory, chat
 
 def request_api(query, relief=[], positive_effects=[]):
     api_url = 'http://api_container:8000' #, 'http://0.0.0.0:8000')
@@ -54,11 +60,7 @@ def request_api(query, relief=[], positive_effects=[]):
         "positive_effects": positive_effects,
         "query": query
     }
-    response = requests.post(
-        f"{api_url}/search",
-        headers=headers,
-        json=payload
-    )
+    response = requests.post(f"{api_url}/search", headers=headers, json=payload)
     resp = [
         (i['title'], i['url']) for i in response.json()
     ]
@@ -66,9 +68,15 @@ def request_api(query, relief=[], positive_effects=[]):
     return resp
 
 def dialog_router(human_input: str, user: dict):
+    if user['user_name'] in dialogs:
+        memory, chat = dialogs[user['user_name']]
+    else:
+        memory, chat = create_dialog()
+        dialogs[user['user_name']] = (memory, chat)
     llm_answer = chat.predict(input=human_input)
     json_answer = extract_json(llm_answer)
     if json_answer is not None:
+        memory.clear()
         return {'final_answer': True, 'answer': json_answer}
     return {'final_answer': False, 'answer': llm_answer}
 

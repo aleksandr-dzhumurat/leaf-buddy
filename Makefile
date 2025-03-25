@@ -16,7 +16,8 @@ run-etl:
 	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/prepare_data.py
 
 run-leafly-scraper:
-	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/leafly_scraper.py
+	CONFIG_DIR=${CURRENT_DIR} \
+	ROOT_DATA_DIR=${CURRENT_DIR}/data python src/${SCENARIO}.py
 
 run-dialog:
 	ROOT_DATA_DIR=${CURRENT_DIR}/data \
@@ -37,7 +38,7 @@ build-api:
 	docker build -f services/api/Dockerfile -t adzhumurat/api:latest .
 
 run-api:
-	docker run -d \
+	docker run --rm -d \
 		--env-file ${CURRENT_DIR}/.env  \
 	    -v "${CURRENT_DIR}/src:/srv/src" \
 		-p 8000:8000 \
@@ -47,7 +48,7 @@ run-api:
 	    --name api_container \
 		adzhumurat/api:latest
 
-run-tg: run-api
+run-tg:
 	docker run --rm \
 		--env-file ${CURRENT_DIR}/.env  \
 	    -v "${CURRENT_DIR}/src:/srv/src" \
@@ -58,4 +59,4 @@ run-tg: run-api
 		adzhumurat/api:latest \
 		"python" src/telagram_app.py
 
-run: build-network run-tg
+run: build-network run-tg run-api
