@@ -10,6 +10,7 @@ import backoff
 import requests
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 
 get_data_version = lambda f_name: f_name.split('_')[-1].split('.')[0]
@@ -157,18 +158,24 @@ class BM25Index:
         res = sorted(res, key = lambda x: -x[1])
         return res
 
+
+import os
+import time
+
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 class TfidfRanker:
     def __init__(self, documents, stop_words='english', ngram_range=(1, 1)):
-        self.documents = documents
+        self.documents = [i[1] for i in documents]
+        self.doc_ids = [i[0] for i in documents]
         self.vectorizer = TfidfVectorizer(
             stop_words=stop_words,
             ngram_range=ngram_range
         )
-        self.document_vectors = self.vectorizer.fit_transform(documents)
+        self.document_vectors = self.vectorizer.fit_transform(self.documents)
     
     def rank(self, query, top_n=5):
         query_vector = self.vectorizer.transform([query])
@@ -177,11 +184,7 @@ class TfidfRanker:
         return [(idx, similarities[idx]) for idx in top_indices]
     
     def get_document(self, index):
-        return self.documents[index]
-
-import os
-import time
-# from datetime import datetime, timedelta
+        return self.doc_ids[index]
 
 def clear_exprired_files(directory, expire_days = 90):
     time_threshold = datetime.datetime.now() - datetime.timedelta(days=expire_days)
@@ -235,3 +238,18 @@ def process_item(i, base_url = 'https://www.leafly.com'):
     item_url = f'{base_url}{link}'
     doc_id = f"doc_{uuid4()}"
     return title, link, item_url, doc_id
+
+def prepare_plaintext_files(catalog_df):
+    base_url = 'https://www.leafly.com'
+    errors = []
+    for _, row in tqdm(catalog_df.iterrows(), desc="Processing items"):
+        link=row['link']
+        page_scraper = create_scraper(row['file'])
+        try:
+            item_descriprion = page_scraper.find(name='div', class_='bg-white border-t border-light-grey').find(name='section', class_="max-w-[700px]").find(name='p')
+            res = item_descriprion.text
+            save_file(res, row['processed_file_name'])
+        except AttributeError:
+            errors.append(f'Parsing error: {base_url}{link}')
+            save_file('', row['processed_file_name'])
+    print(f'Catalog saved, num errors {len(errors)}')

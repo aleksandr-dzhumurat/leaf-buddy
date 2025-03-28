@@ -29,6 +29,18 @@ Run preparation script
 ROOT_DATA_DIR=$(pwd)/data/pipelines-data python services/etl/src/prepare_data.py
 ```
 
+# Scrape leafly
+
+Run scraping
+
+```shell
+SCENARIO=search_query make run-leafly-scraper
+```
+
+Search results will be saved to `data/search/search_{{ DATA_VERSION }}`
+
+
+
 # Test dialog locally
 
 Run dialog
