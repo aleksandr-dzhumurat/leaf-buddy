@@ -121,3 +121,18 @@ def match_ecom_catalog_to_sweed_catalog(ecom_catalog_df, products_df, index):
     ecom_catalog_df['ProductID'] = ecom_catalog_df[['name', 'category.name']].apply(lambda row: f'{row.iloc[0]} {row.iloc[1]}'.lower(), axis=1).apply(lambda x: get_match(x, index))
     ecom_catalog_df = ecom_catalog_df.merge(products_df[['ProductID', 'ProductName', 'ProductCategory']], on='ProductID')
     return ecom_catalog_df
+
+
+def prepare_matching(output_dir, mapping_df):
+    products_list = mapping_df['ProductID'].unique().tolist()
+    print('Num products in list')
+    for i in products_list:
+        output_file = os.path.join(output_dir, f'{i}.csv')
+        if not os.path.exists(output_file):
+            sub_df = mapping_df[mapping_df['ProductID'] == i].copy()
+            sub_df['row_num'] = sub_df.reset_index().index + 1
+            sub_df = find_match(sub_df)
+            sub_df.to_csv(output_file, index=False)
+        else:
+            pass
+    print(f'All done! Num files: {len(os.listdir(output_dir))}')
