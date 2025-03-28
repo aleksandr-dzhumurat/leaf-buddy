@@ -48,7 +48,7 @@ def scrape_leafly_catalog(html_dir, html_items_dir, items_description_dir, max_p
     return catalog_df
 
 
-def dowlnload_leafly_items(html_dir, items_description_dir):
+def dowlnload_leafly_items(ecom_catalog_prepared_df, html_dir, items_description_dir):
     base_url = 'https://www.leafly.com'
     entries = []
     for rn, row in ecom_catalog_prepared_df.iterrows():
