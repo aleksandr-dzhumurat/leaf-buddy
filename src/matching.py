@@ -122,7 +122,6 @@ def match_ecom_catalog_to_sweed_catalog(ecom_catalog_df, products_df, index):
     ecom_catalog_df = ecom_catalog_df.merge(products_df[['ProductID', 'ProductName', 'ProductCategory']], on='ProductID')
     return ecom_catalog_df
 
-
 def prepare_matching(output_dir, mapping_df):
     products_list = mapping_df['ProductID'].unique().tolist()
     print('Num products in list')

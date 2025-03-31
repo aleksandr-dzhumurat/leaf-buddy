@@ -84,7 +84,7 @@ def process_item(i, base_url = 'https://www.leafly.com'):
         price = uom = 'N/A'
     return [title, doc_id, brand, link, item_url, price, uom]
 
-def prepare_search_results(queries, root_html_dir):
+def prepare_leafly_search_queries(queries, root_html_dir):
     for q in queries:
         url = searh_url.format(**q)
         if q['brand'] is not None:
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     #     {'q': 'Ghost+Milk', 'brand': 'Verano'}
     # ]
     queries = prepare_verano_product()
-    prepare_search_results(queries, root_html_dir)
+    prepare_leafly_search_queries(queries, root_html_dir)
     sweed_catalog_df = prepare_sweed_catalog()
     search_results_df = concat_search_results(root_html_dir, sweed_catalog_df)
     search_link_dedupled_df = search_results_df[['title', 'link']].groupby('title').agg(lambda x: x.iloc[0]).reset_index()

@@ -56,12 +56,12 @@ def dowlnload_leafly_items(ecom_catalog_prepared_df, html_dir, items_description
         # if rn % 50 == 0:
         #     display(HTML(f'<a href="{url}" target="_blank">{title}</a>'))
         html_path = os.path.join(html_dir, url_to_filename(url))
-        doc_id = f"doc_{get_id_hash()}"
+        # doc_id = f"doc_{get_id_hash()}"
         if not os.path.exists(html_path):
             code = save_html(request_smart(url), html_path)
         if os.path.exists(html_path):
-            processed_file_name = os.path.join(items_description_dir, f"{doc_id}.txt")
-            entry = (doc_id, title, row['link'], html_path, processed_file_name)
+            processed_file_name = os.path.join(items_description_dir, f"{row['ProductID']}.txt")
+            entry = (row['ProductID'], title, row['link'], html_path, processed_file_name)
             entries.append(entry)
     catalog_df = pd.DataFrame(entries)
     catalog_df = pd.DataFrame(entries, columns=['doc_id', 'title', 'link', 'file', 'processed_file_name'])
